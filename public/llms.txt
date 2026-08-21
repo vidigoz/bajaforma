@@ -1,0 +1,18 @@
+# Bajaforma
+
+> Bajaforma es un taller de impresión 3D que ofrece productos personalizados
+> configurables en línea: el cliente ajusta diseño, texto, tipografía, color
+> y tamaño en el navegador, ve el precio al instante y pide su cotización.
+
+## Páginas principales
+
+- [Inicio](https://www.bajaforma.com/): presentación general y catálogo destacado.
+- [Productos personalizados](https://www.bajaforma.com/productos/): catálogo completo de configuradores.
+- [Llaveros con nombre](https://www.bajaforma.com/productos/llaveros-personalizados/): configurador de llaveros 3D con nombre, tipografía, colores y cotización en vivo.
+- [Cómo funciona](https://www.bajaforma.com/como-funciona/): explicación del proceso de pedido.
+- [Contacto](https://www.bajaforma.com/contacto/): formulario y datos de contacto (WhatsApp, correo).
+
+## Notas para agentes / crawlers
+
+- Los configuradores interactivos (bajo /tools/) son aplicaciones en 3D (Three.js) sin contenido textual propio; la información relevante de cada producto vive en su página contenedora bajo /productos/.
+- Los precios mostrados en los configuradores son estimados y se calculan en el navegador del usuario; no hay una API pública de precios todavía.

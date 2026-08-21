@@ -1,0 +1,51 @@
+---
+import { siteConfig, whatsappLink } from '../lib/site';
+
+const navLinks = [
+  { href: '/productos/', label: 'Productos personalizados' },
+  { href: '/como-funciona/', label: 'Cómo funciona' },
+  { href: '/contacto/', label: 'Contacto' }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="border-b border-ocean-100 bg-sand-50">
+  <div class="mx-auto max-w-6xl px-5 py-4 flex items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2 text-lg font-semibold text-ocean-600 font-display">
+      <span aria-hidden="true">🧊</span>
+      {siteConfig.name}
+    </a>
+
+    <nav aria-label="Principal" class="hidden md:flex items-center gap-6 text-sm font-medium">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'hover:text-ocean-500 transition-colors',
+            currentPath.startsWith(link.href) ? 'text-ocean-600' : 'text-ink-soft'
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <a
+      href={whatsappLink('Hola, quiero cotizar un producto personalizado de Bajaforma')}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="rounded-full bg-sunset-500 text-white text-sm font-semibold px-4 py-2 hover:bg-sunset-600 transition-colors whitespace-nowrap"
+    >
+      Cotizar por WhatsApp
+    </a>
+  </div>
+
+  <!-- Nav simple para móvil: se apila debajo del header en vez de menú hamburguesa,
+       para no meter JS extra solo por esto. -->
+  <nav aria-label="Principal móvil" class="md:hidden border-t border-ocean-100 px-5 py-2 flex gap-4 text-sm overflow-x-auto">
+    {navLinks.map((link) => (
+      <a href={link.href} class="text-ink-soft hover:text-ocean-500 whitespace-nowrap">{link.label}</a>
+    ))}
+  </nav>
+</header>

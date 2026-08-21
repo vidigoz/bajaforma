@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { products } from '../lib/products';
+import { whatsappLink } from '../lib/site';
+---
+
+<Layout
+  title="Impresión 3D y productos personalizados"
+  description="Diseña en línea tu producto personalizado (llaveros con nombre y más) y recibe cotización al instante. Impresión 3D en Baja California."
+>
+  <!-- Hero -->
+  <section class="mx-auto max-w-6xl px-5 pt-16 pb-14 text-center">
+    <p class="inline-block text-xs font-semibold uppercase tracking-wide text-ocean-500 bg-ocean-50 rounded-full px-3 py-1">
+      Impresión 3D a la medida
+    </p>
+    <h1 class="mt-4 text-4xl sm:text-5xl font-semibold leading-tight">
+      Diseña tu producto, <span class="text-ocean-500">imprímelo en 3D</span>
+    </h1>
+    <p class="mt-4 max-w-2xl mx-auto text-ink-soft text-lg">
+      En Bajaforma personalizas tu producto directamente en el navegador —nombre, tipografía,
+      colores y tamaño— y ves el precio al instante. Sin pedidos mínimos, sin complicaciones.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <a href="/productos/" class="rounded-full bg-ocean-500 text-white font-semibold px-6 py-3 hover:bg-ocean-600 transition-colors">
+        Ver productos personalizados
+      </a>
+      <a
+        href={whatsappLink('Hola, tengo una duda sobre impresión 3D personalizada')}
+        target="_blank" rel="noopener noreferrer"
+        class="rounded-full border border-ocean-100 text-ink font-semibold px-6 py-3 hover:border-sunset-400 hover:text-sunset-500 transition-colors"
+      >
+        Preguntar por WhatsApp
+      </a>
+    </div>
+  </section>
+
+  <!-- Productos destacados -->
+  <section class="mx-auto max-w-6xl px-5 py-14 border-t border-ocean-100">
+    <div class="flex items-end justify-between gap-4 mb-8">
+      <h2 class="text-2xl font-semibold">Productos personalizados</h2>
+      <a href="/productos/" class="text-sm font-medium text-ocean-500 hover:text-ocean-600 whitespace-nowrap">Ver todos →</a>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {products.map((product) => <ProductCard product={product} />)}
+    </div>
+  </section>
+
+  <!-- Cómo funciona -->
+  <section class="bg-sand-100/50 border-t border-ocean-100">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <h2 class="text-2xl font-semibold mb-8 text-center">Cómo funciona</h2>
+      <div class="grid gap-8 sm:grid-cols-3 text-center">
+        <div>
+          <div class="mx-auto w-10 h-10 rounded-full bg-ocean-500 text-white flex items-center justify-center font-bold font-mono">1</div>
+          <p class="mt-3 font-semibold">Personaliza</p>
+          <p class="mt-1 text-sm text-ink-soft">Elige un producto y ajústalo a tu gusto: texto, tipografía, color y tamaño.</p>
+        </div>
+        <div>
+          <div class="mx-auto w-10 h-10 rounded-full bg-ocean-500 text-white flex items-center justify-center font-bold font-mono">2</div>
+          <p class="mt-3 font-semibold">Ve el precio al instante</p>
+          <p class="mt-1 text-sm text-ink-soft">La cotización se calcula en vivo según material, tamaño y cantidad.</p>
+        </div>
+        <div>
+          <div class="mx-auto w-10 h-10 rounded-full bg-ocean-500 text-white flex items-center justify-center font-bold font-mono">3</div>
+          <p class="mt-3 font-semibold">Confirma tu pedido</p>
+          <p class="mt-1 text-sm text-ink-soft">Nos escribes por WhatsApp o el formulario de contacto y coordinamos entrega/envío.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

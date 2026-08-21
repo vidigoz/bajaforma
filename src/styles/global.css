@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Paleta de marca Bajaforma — "Costa Baja": océano profundo + arena +
+   naranja de atardecer. Ver /paletas-bajaforma para el comparativo. */
+@theme {
+  /* Arena — fondo cálido en vez de blanco/gris puro */
+  --color-sand-50: #fbf6ee;
+  --color-sand-100: #f3ead9;
+
+  /* Océano — color estructural (encabezados, marcos, botones secundarios) */
+  --color-ocean-50: #e7f3f4;
+  --color-ocean-100: #cfe6e8;
+  --color-ocean-400: #1a94a3;
+  --color-ocean-500: #0b6e7a;
+  --color-ocean-600: #073039;
+  --color-ocean-900: #0b3b45;
+
+  /* Atardecer — único acento, reservado para llamadas a la acción */
+  --color-sunset-50: #fdeee3;
+  --color-sunset-400: #d9722c;
+  --color-sunset-500: #c9622a;
+  --color-sunset-600: #a84f1f;
+
+  --color-ink: #20302f;
+  --color-ink-soft: #6b6157;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-sand-50);
+  color: var(--color-ink);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+.font-mono, .tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

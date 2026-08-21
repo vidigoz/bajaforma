@@ -1,0 +1,96 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { siteConfig } from '../../../lib/site';
+
+const faqs = [
+  {
+    q: '¿Cuánto tarda en imprimirse un llavero?',
+    a: 'Depende del largo del nombre y el relleno elegido, pero la mayoría de los llaveros se imprimen en menos de una hora por pieza.'
+  },
+  {
+    q: '¿Puedo imprimir el archivo yo mismo?',
+    a: 'Sí. El configurador genera un archivo STL listo para tu propia impresora o slicer, con la opción de descargar la base y las letras por separado para imprimir a dos colores.'
+  },
+  {
+    q: '¿Qué pasa si el nombre tiene espacios o es muy largo?',
+    a: 'El configurador une automáticamente todas las letras en una sola pieza imprimible y te avisa si el diseño podría quedar frágil o no caber en una cama de impresión estándar.'
+  }
+];
+
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'Llaveros personalizados con nombre (impresión 3D)',
+  description:
+    'Llavero 3D personalizado con el nombre, tipografía y colores que elijas, con argolla integrada.',
+  brand: { '@type': 'Brand', name: siteConfig.name },
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'MXN',
+    availability: 'https://schema.org/InStock',
+    url: `${siteConfig.url}/productos/llaveros-personalizados/`
+  }
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a }
+  }))
+};
+---
+
+<Layout
+  title="Llaveros personalizados con nombre — impresión 3D"
+  description="Diseña tu llavero 3D personalizado: escribe el nombre, elige tipografía y colores, mira el modelo en vivo y descarga el STL o pide tu cotización al instante."
+  structuredData={[productSchema, faqSchema]}
+>
+  <section class="mx-auto max-w-6xl px-5 pt-12 pb-8">
+    <p class="text-sm text-ink-soft">
+      <a href="/productos/" class="hover:text-ocean-500">Productos personalizados</a> / Llaveros con nombre
+    </p>
+    <h1 class="mt-2 text-3xl sm:text-4xl font-semibold">Llaveros personalizados con nombre</h1>
+    <p class="mt-3 max-w-2xl text-ink-soft">
+      Escribe cualquier nombre, elige la tipografía y los colores, y mira tu llavero en 3D antes de
+      pedirlo. El configurador calcula el precio al instante y genera el archivo listo para imprimir,
+      con argolla integrada en una sola pieza.
+    </p>
+  </section>
+
+  <!-- App del configurador: vive como página estática independiente en /tools/
+       (su propio HTML/CSS/JS, con Three.js + opentype.js) e incrusta aquí.
+       Así el contenido de esta página (lo que Google/IA indexan) queda
+       separado de la herramienta interactiva en sí. -->
+  <section class="mx-auto max-w-6xl px-5 pb-6">
+    <div class="rounded-2xl border border-ocean-100 overflow-hidden bg-sand-100/40">
+      <iframe
+        src="/tools/llaveros-personalizados.html"
+        title="Configurador de llaveros 3D personalizados"
+        loading="lazy"
+        class="w-full block"
+        style="height: 900px; border: 0;"
+      ></iframe>
+    </div>
+    <p class="mt-2 text-sm text-ink-soft">
+      ¿Se ve muy chico en tu pantalla?
+      <a href="/tools/llaveros-personalizados.html" target="_blank" rel="noopener noreferrer" class="text-ocean-500 hover:text-ocean-600 font-medium">
+        Ábrelo en pantalla completa →
+      </a>
+    </p>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-5 py-10 border-t border-ocean-100">
+    <h2 class="text-2xl font-semibold mb-6">Preguntas frecuentes</h2>
+    <div class="space-y-6 max-w-3xl">
+      {faqs.map((f) => (
+        <div>
+          <p class="font-semibold">{f.q}</p>
+          <p class="mt-1 text-ink-soft">{f.a}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>

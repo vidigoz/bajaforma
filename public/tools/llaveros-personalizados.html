@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Configurador de Llaveros 3D · Bajaforma</title>
+<meta name="robots" content="noindex, follow">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Lobster&family=Luckiest+Guy&family=Bungee&family=Righteous&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;color:#1a1a1a;font-size:14px;line-height:1.5}
+.page{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.header h1{font-size:21px;font-weight:600;color:#0b6e7a}
+.header p{font-size:13px;color:#888;margin-top:2px}
+.badge{background:#0b6e7a;color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:20px}
+
+.layout{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+.card{background:#fff;border:1px solid #e2e5e9;border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card-title{font-size:11px;font-weight:600;color:#999;letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:500;color:#666;margin-bottom:5px}
+input[type=text],input[type=number],select{width:100%;padding:9px 11px;font-size:15px;border:1px solid #d0d5dd;border-radius:8px;outline:none;font-family:inherit;color:#1a1a1a;background:#fff}
+input:focus,select:focus{border-color:#1a94a3;box-shadow:0 0 0 3px rgba(11,110,122,.14)}
+
+/* VISOR */
+#viewer{position:relative;width:100%;height:420px;border-radius:12px;overflow:hidden;background:#dfe3e6;border:1px solid #e2e5e9}
+#viewer canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;cursor:grab;display:block}
+#viewer canvas:active{cursor:grabbing}
+#vOverlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#777;background:#dfe3e6;z-index:2;text-align:center;padding:20px}
+.vhint{position:absolute;bottom:9px;right:11px;font-size:11px;color:rgba(0,0,0,.35);background:rgba(255,255,255,.6);padding:3px 9px;border-radius:5px;z-index:3;pointer-events:none}
+
+/* FUENTES */
+.fonts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.font-btn{border:1.5px solid #e2e5e9;border-radius:9px;padding:11px 8px;cursor:pointer;background:#fff;text-align:center;transition:all .12s;overflow:hidden}
+.font-btn:hover{border-color:#1a94a3;background:#e7f3f4}
+.font-btn.on{border-color:#0b6e7a;border-width:2px;background:#e7f3f4}
+.font-btn .fs{font-size:20px;color:#333;line-height:1.3;white-space:nowrap}
+.font-btn.on .fs{color:#073039}
+.font-btn .fl{font-size:10px;color:#aaa;margin-top:2px;font-family:-apple-system,sans-serif}
+.f-pacifico{font-family:'Pacifico',cursive}
+.f-lobster{font-family:'Lobster',cursive}
+.f-luckiest{font-family:'Luckiest Guy',cursive}
+.f-bungee{font-family:'Bungee',cursive}
+.f-righteous{font-family:'Righteous',cursive}
+
+/* SLIDERS */
+.srow{display:flex;align-items:center;gap:10px}
+.srow input[type=range]{flex:1;accent-color:#1a94a3}
+.sval{font-size:13px;font-weight:600;min-width:52px;text-align:right;color:#0b6e7a}
+
+/* COLORES */
+.swatches{display:flex;gap:7px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1.5px #d0d5dd;transition:all .12s}
+.sw:hover{transform:scale(1.1)}
+.sw.on{box-shadow:0 0 0 2.5px #0b6e7a}
+
+/* DIMS */
+.dims{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.dim{background:#eef6f7;border:1px solid #cfe6e8;border-radius:8px;padding:9px 6px;text-align:center}
+.dim .dl{font-size:10px;color:#888;margin-bottom:2px}
+.dim .dv{font-size:15px;font-weight:600;color:#0b6e7a}
+.dim .du{font-size:9px;color:#aaa}
+
+/* PRECIO */
+.price-box{background:#e7f3f4;border:2px solid #1a94a3;border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.price-box .pl{font-size:12px;color:#0b6e7a;font-weight:500}
+.price-box .ps{font-size:11px;color:#4fb0bd;margin-top:1px}
+.price-box .pn{font-size:28px;font-weight:700;color:#073039}
+
+/* BOTONES */
+.btn{width:100%;padding:12px;font-size:14px;font-weight:600;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .12s}
+.btn-primary{background:#c9622a;color:#fff}
+.btn-primary:hover{background:#a84f1f}
+.btn-sec{background:#fff;color:#0b6e7a;border:1.5px solid #1a94a3;margin-top:8px}
+.btn-sec:hover{background:#e7f3f4}
+.btn:disabled{background:#ccc;color:#fff;border-color:#ccc;cursor:not-allowed}
+
+.warn{font-size:12px;color:#854f0b;background:#fff8ed;border:1px solid #f5c842;border-radius:7px;padding:8px 11px;margin-top:10px}
+.note{font-size:11px;color:#aaa;margin-top:8px;line-height:1.5}
+.hidden{display:none!important}
+.qrow{display:flex;align-items:center;border:1px solid #d0d5dd;border-radius:8px;overflow:hidden;width:fit-content}
+.qbtn{width:34px;height:34px;border:none;background:#f4f5f7;font-size:17px;cursor:pointer;color:#333}
+.qbtn:hover{background:#e7f3f4;color:#0b6e7a}
+.qnum{width:52px;height:34px;border:none;border-left:1px solid #e2e5e9;border-right:1px solid #e2e5e9;text-align:center;font-size:15px;font-weight:600;outline:none}
+.qnum::-webkit-inner-spin-button,.qnum::-webkit-outer-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div><h1>Configurador de Llaveros 3D</h1><p>Escribe un nombre, elige tu estilo y descarga el archivo listo para imprimir</p></div>
+    <div class="badge">FDM</div>
+  </div>
+
+  <div class="layout">
+    <!-- IZQUIERDA -->
+    <div>
+      <div class="card" style="padding:14px">
+        <div id="viewer">
+          <div id="vOverlay">Cargando fuentes...</div>
+          <span class="vhint">Arrastrar &middot; Scroll = zoom</span>
+        </div>
+        <div class="dims">
+          <div class="dim"><p class="dl">Largo X</p><p class="dv" id="dX">&mdash;</p><p class="du">mm</p></div>
+          <div class="dim"><p class="dl">Alto Y</p><p class="dv" id="dY">&mdash;</p><p class="du">mm</p></div>
+          <div class="dim"><p class="dl">Grosor Z</p><p class="dv" id="dZ">&mdash;</p><p class="du">mm</p></div>
+          <div class="dim"><p class="dl">Material</p><p class="dv" id="dVol">&mdash;</p><p class="du">cm&sup3;</p></div>
+        </div>
+        <div class="warn hidden" id="warnBox"></div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Nombre</p>
+        <input type="text" id="txtName" value="Zoe Valeria" maxlength="22" placeholder="Escribe el nombre...">
+        <p class="note">M&aacute;ximo 22 caracteres. Los espacios cuentan.</p>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Tipograf&iacute;a</p>
+        <div class="fonts" id="fontGrid"></div>
+      </div>
+    </div>
+
+    <!-- DERECHA -->
+    <div>
+      <div class="card">
+        <p class="card-title">Colores</p>
+        <label>Base</label>
+        <div class="swatches" id="swBase" style="margin-bottom:14px"></div>
+        <label>Letras</label>
+        <div class="swatches" id="swText"></div>
+      </div>
+
+      <!-- Base continua: siempre activa, oculta al usuario -->
+      <input type="checkbox" id="chkSolid" checked style="display:none">
+
+      <!-- Panel colapsable de parámetros avanzados -->
+      <div class="card" style="padding:0;overflow:hidden">
+        <button type="button" id="advToggle" onclick="toggleAdvanced()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;padding:16px 18px;font-family:inherit">
+          <span class="card-title" style="margin-bottom:0">Par&aacute;metros avanzados</span>
+          <svg id="advChevron" width="16" height="16" viewBox="0 0 16 16" fill="none" style="transition:transform .2s;flex-shrink:0"><path d="M4 6l4 4 4-4" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div id="advBody" class="hidden" style="padding:0 18px 18px">
+
+          <p class="card-title" style="margin-top:4px">Dimensiones</p>
+          <label>Altura de letra &mdash; <span id="lblH">25 mm</span></label>
+          <div class="srow" style="margin-bottom:14px">
+            <input type="range" id="inH" min="12" max="45" step="1" value="25">
+            <span class="sval" id="valH">25 mm</span>
+          </div>
+          <label>Ancho del borde &mdash; <span id="lblO">4.5 mm</span></label>
+          <div class="srow" style="margin-bottom:14px">
+            <input type="range" id="inO" min="1.5" max="7" step="0.5" value="4.5">
+            <span class="sval" id="valO">4.5 mm</span>
+          </div>
+          <label>Grosor base &mdash; <span id="lblTB">3.0 mm</span></label>
+          <div class="srow" style="margin-bottom:14px">
+            <input type="range" id="inTB" min="1" max="5" step="0.2" value="3">
+            <span class="sval" id="valTB">3.0 mm</span>
+          </div>
+          <label>Grosor letras &mdash; <span id="lblTL">3.0 mm</span></label>
+          <div class="srow" style="margin-bottom:18px">
+            <input type="range" id="inTL" min="0.6" max="4" step="0.2" value="3">
+            <span class="sval" id="valTL">3.0 mm</span>
+          </div>
+
+          <p class="card-title">Argolla</p>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#333;font-weight:500">
+            <input type="checkbox" id="chkRing" checked style="width:auto;accent-color:#0b6e7a"> Incluir orificio para argolla
+          </label>
+          <div id="ringOpts" style="margin-top:12px">
+            <label>Di&aacute;metro del orificio &mdash; <span id="lblR">5.0 mm</span></label>
+            <div class="srow">
+              <input type="range" id="inR" min="2" max="8" step="0.5" value="5">
+              <span class="sval" id="valR">5.0 mm</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Cotizaci&oacute;n</p>
+        <label>Cantidad</label>
+        <div class="qrow" style="margin-bottom:14px">
+          <button class="qbtn" onclick="qty(-1)">&minus;</button>
+          <input class="qnum" type="number" id="inQty" value="1" min="1">
+          <button class="qbtn" onclick="qty(1)">+</button>
+        </div>
+        <label>Relleno (infill) &mdash; <span id="lblIn">25%</span></label>
+        <div class="srow">
+          <input type="range" id="inInfill" min="10" max="100" step="5" value="25">
+          <span class="sval" id="valIn">25%</span>
+        </div>
+        <div class="price-box">
+          <div><p class="pl" id="pLabel">1 pieza</p><p class="ps" id="pSub">&mdash;</p></div>
+          <div style="text-align:right"><span style="font-size:14px;color:#0b6e7a">$</span><span class="pn" id="pTotal">&mdash;</span><span style="font-size:12px;color:#0b6e7a;margin-left:3px">MXN</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Exportar</p>
+        <button class="btn btn-primary" id="btnAll" onclick="exportSTL('all')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4M2 14h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Descargar STL completo
+        </button>
+        <button class="btn btn-sec" onclick="exportSTL('base')">Solo base (color 1)</button>
+        <button class="btn btn-sec" onclick="exportSTL('text')">Solo letras (color 2)</button>
+        <p class="note">Para impresi&oacute;n a 2 colores descarga las piezas por separado y c&aacute;rgalas alineadas en tu slicer, o usa el STL completo con cambio de filamento por capa.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
+<script>
+// ══════════ CONFIG ══════════
+const GH = 'https://cdn.jsdelivr.net/gh/google/fonts@main/';
+const FONTS = [
+  { id:'pacifico', name:'Pacifico',     css:'f-pacifico', url: GH+'ofl/pacifico/Pacifico-Regular.ttf' },
+  { id:'lobster',  name:'Lobster',      css:'f-lobster',  url: GH+'ofl/lobster/Lobster-Regular.ttf' },
+  { id:'luckiest', name:'Luckiest Guy', css:'f-luckiest', url: GH+'apache/luckiestguy/LuckiestGuy-Regular.ttf' },
+  { id:'bungee',   name:'Bungee',       css:'f-bungee',   url: GH+'ofl/bungee/Bungee-Regular.ttf' },
+  { id:'righteous',name:'Righteous',    css:'f-righteous',url: GH+'ofl/righteous/Righteous-Regular.ttf' }
+];
+const PALETTE_BASE = ['#F7A8C4','#F4C2A1','#A8D8F0','#C5E8B7','#E8D4F0','#FFFFFF','#2B2B2B','#F5E663'];
+const PALETTE_TEXT = ['#7FD4E8','#FFFFFF','#F7A8C4','#2B2B2B','#FFD966','#8FD98F','#C9A0DC','#FF8C6B'];
+
+// Precios (mismos del cotizador)
+const PRECIO_KG = 250, DENSIDAD = 1.24, COSTO_HORA = 50, MARGEN = 1.0, LAYER_H = 0.2;
+
+let fontCache = {}, currentFont = 'pacifico';
+let colorBase = '#F7A8C4', colorText = '#7FD4E8';
+let renderer, scene, camera, rafId, group;
+let sph = { theta: 0.15, phi: 1.15, radius: 120 };
+let drag = false, lx = 0, ly = 0, autoRot = true;
+let lastGeo = { base: null, text: null, areaBase: 0, areaText: 0 };
+
+// ══════════ FUENTES UI ══════════
+const fontGrid = document.getElementById('fontGrid');
+FONTS.forEach(f => {
+  const d = document.createElement('div');
+  d.className = 'font-btn' + (f.id === currentFont ? ' on' : '');
+  d.dataset.id = f.id;
+  d.innerHTML = `<p class="fs ${f.css}">Ana</p><p class="fl">${f.name}</p>`;
+  d.onclick = () => {
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('on'));
+    d.classList.add('on');
+    currentFont = f.id;
+    rebuild();
+  };
+  fontGrid.appendChild(d);
+});
+
+// ══════════ SWATCHES ══════════
+function buildSwatches(el, palette, current, cb) {
+  el.innerHTML = '';
+  palette.forEach(c => {
+    const s = document.createElement('div');
+    s.className = 'sw' + (c === current ? ' on' : '');
+    s.style.background = c;
+    s.onclick = () => {
+      el.querySelectorAll('.sw').forEach(x => x.classList.remove('on'));
+      s.classList.add('on');
+      cb(c);
+    };
+    el.appendChild(s);
+  });
+}
+buildSwatches(document.getElementById('swBase'), PALETTE_BASE, colorBase, c => { colorBase = c; applyColors(); });
+buildSwatches(document.getElementById('swText'), PALETTE_TEXT, colorText, c => { colorText = c; applyColors(); });
+
+// ══════════ CONTROLES ══════════
+const bind = (id, fn) => document.getElementById(id).addEventListener('input', fn);
+bind('txtName', debounce(rebuild, 350));
+bind('inH',  () => { setLbl('H', v('inH').toFixed(0)+' mm'); rebuild(); });
+bind('inO',  () => { setLbl('O', v('inO').toFixed(1)+' mm'); rebuild(); });
+bind('inTB', () => { setLbl('TB', v('inTB').toFixed(1)+' mm'); rebuild(); });
+bind('inTL', () => { setLbl('TL', v('inTL').toFixed(1)+' mm'); rebuild(); });
+bind('inR',  () => { setLbl('R', v('inR').toFixed(1)+' mm'); rebuild(); });
+bind('inInfill', () => { setLbl('In', v('inInfill').toFixed(0)+'%'); price(); });
+bind('inQty', price);
+document.getElementById('chkSolid').addEventListener('change', rebuild);
+document.getElementById('chkRing').addEventListener('change', e => {
+  document.getElementById('ringOpts').style.display = e.target.checked ? 'block' : 'none';
+  rebuild();
+});
+function v(id){ return parseFloat(document.getElementById(id).value); }
+function setLbl(k, t){ document.getElementById('val'+k).textContent = t; const l = document.getElementById('lbl'+k); if(l) l.textContent = t; }
+function qty(d){ const e = document.getElementById('inQty'); e.value = Math.max(1, (parseInt(e.value)||1)+d); price(); }
+function toggleAdvanced(){
+  const body = document.getElementById('advBody');
+  const chev = document.getElementById('advChevron');
+  const open = body.classList.contains('hidden');
+  body.classList.toggle('hidden');
+  chev.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+function debounce(fn, ms){ let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+// ══════════ CARGA DE FUENTE ══════════
+function loadFont(id) {
+  if (fontCache[id]) return Promise.resolve(fontCache[id]);
+  const f = FONTS.find(x => x.id === id);
+  return new Promise((res, rej) => {
+    opentype.load(f.url, (err, font) => {
+      if (err) rej(err); else { fontCache[id] = font; res(font); }
+    });
+  });
+}
+
+// ══════════ GEOMETRÍA ══════════
+function shoelace(pts) {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], q = pts[(i+1) % pts.length];
+    a += p.x * q.y - q.x * p.y;
+  }
+  return a / 2;
+}
+function inside(pt, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if (((a.y > pt.y) !== (b.y > pt.y)) && (pt.x < (b.x-a.x)*(pt.y-a.y)/(b.y-a.y)+a.x)) c = !c;
+  }
+  return c;
+}
+
+// Convierte el texto a contornos → shapes con huecos
+function textToShapes(font, text, fontSize, div) {
+  // Se procesa glifo por glifo (no el string completo de una vez) para que la
+  // detección de huecos de CADA letra sea local a esa letra. Si se hiciera con
+  // todos los contornos del nombre juntos, un trazo de conexión curvo de una
+  // letra vecina puede "envolver" por error a una letra pequeña (como la "o")
+  // y esta se descarta como si fuera un hueco, dejándola invisible.
+  const scale = fontSize / font.unitsPerEm;
+  const glyphs = font.stringToGlyphs(text);
+  const allShapes = [];
+  const allSolidContours = [];
+  let cursorX = 0, prevGlyph = null;
+
+  for (const g of glyphs) {
+    if (prevGlyph) cursorX += font.getKerningValue(prevGlyph, g) * scale;
+    const path = g.getPath(cursorX, 0, fontSize);
+
+    const raw = [];
+    let cur = null;
+    for (const c of path.commands) {
+      if (c.type === 'M') { cur = new THREE.Path(); cur.moveTo(c.x, -c.y); raw.push(cur); }
+      else if (!cur) continue;
+      else if (c.type === 'L') cur.lineTo(c.x, -c.y);
+      else if (c.type === 'C') cur.bezierCurveTo(c.x1, -c.y1, c.x2, -c.y2, c.x, -c.y);
+      else if (c.type === 'Q') cur.quadraticCurveTo(c.x1, -c.y1, c.x, -c.y);
+      else if (c.type === 'Z') cur.closePath();
+    }
+    const contours = raw.map(p => ({ pts: p.getPoints(div) })).filter(c => c.pts.length > 2);
+    contours.forEach(c => c.area = Math.abs(shoelace(c.pts)));
+
+    // profundidad de anidamiento SOLO dentro de este glifo → par = sólido, impar = hueco
+    contours.forEach(c => {
+      c.depth = 0;
+      contours.forEach(o => { if (o !== c && o.area > c.area && inside(c.pts[0], o.pts)) c.depth++; });
+    });
+
+    const solids = contours.filter(c => c.depth % 2 === 0);
+    const holes  = contours.filter(c => c.depth % 2 === 1);
+
+    solids.forEach(s => {
+      const sh = new THREE.Shape(s.pts);
+      holes.forEach(h => {
+        let owner = null;
+        solids.forEach(o => { if (inside(h.pts[0], o.pts) && (!owner || o.area < owner.area)) owner = o; });
+        if (owner === s) sh.holes.push(new THREE.Path(h.pts));
+      });
+      allShapes.push(sh);
+    });
+    allSolidContours.push(...solids);
+
+    cursorX += g.advanceWidth * scale;
+    prevGlyph = g;
+  }
+  return { shapes: allShapes, solidContours: allSolidContours };
+}
+
+// Área real (mm²) por rasterizado — evita contar traslapes dos veces
+function rasterArea(shapes, scale, mmPerPx) {
+  let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+  const polys = shapes.map(s => {
+    const ep = s.extractPoints(6);
+    ep.shape.forEach(p => {
+      minX = Math.min(minX, p.x*scale); maxX = Math.max(maxX, p.x*scale);
+      minY = Math.min(minY, p.y*scale); maxY = Math.max(maxY, p.y*scale);
+    });
+    return ep;
+  });
+  if (!isFinite(minX)) return 0;
+  const W = Math.ceil((maxX-minX)/mmPerPx)+2, H = Math.ceil((maxY-minY)/mmPerPx)+2;
+  if (W < 1 || H < 1 || W*H > 6e6) return 0;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  polys.forEach(ep => {
+    const trace = pts => {
+      pts.forEach((p,i) => {
+        const x = (p.x*scale - minX)/mmPerPx + 1, y = (p.y*scale - minY)/mmPerPx + 1;
+        i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      });
+      ctx.closePath();
+    };
+    trace(ep.shape);
+    ep.holes.forEach(trace);
+  });
+  ctx.fill('evenodd');
+  const d = ctx.getImageData(0,0,W,H).data;
+  let n = 0;
+  for (let i = 3; i < d.length; i += 4) if (d[i] > 128) n++;
+  return n * mmPerPx * mmPerPx;
+}
+
+// ── UNION GARANTIZADA DE LA BASE (componentes conectados + MST) ──────────
+// Rasteriza la silueta de la base a un bitmap binario (en mm reales)
+// Busca el punto REAL más cercano a un objetivo sobre la silueta ya construida.
+// Se usa para anclar la argolla exactamente sobre material existente, en vez
+// de asumir una posición (evita que el cuello quede apuntando al vacío).
+function nearestBoundaryPointToTarget(shapes, scale, mmPx, targetXlocal, targetYlocal) {
+  const r = rasterizeBase(shapes, scale, mmPx);
+  if (!r) return null;
+  const { d, W, H, minX, minY } = r;
+  const on = (x,y) => d[(y*W+x)*4+3] > 128;
+  const tXpx = (targetXlocal*scale - minX)/mmPx + 1, tYpx = (targetYlocal*scale - minY)/mmPx + 1;
+  let best = Infinity, bx = -1, by = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!on(x,y)) continue;
+      const dx = x-tXpx, dy = y-tYpx;
+      const dd = dx*dx + dy*dy;
+      if (dd < best) { best = dd; bx = x; by = y; }
+    }
+  }
+  if (bx < 0) return null;
+  return { x: (minX + (bx-1)*mmPx) / scale, y: (minY + (by-1)*mmPx) / scale };
+}
+
+function rasterizeBase(shapes, scale, mmPx) {
+  let minX=1e9, minY=1e9, maxX=-1e9, maxY=-1e9;
+  const polys = shapes.map(sh => {
+    const ep = sh.extractPoints(6);
+    ep.shape.forEach(p => {
+      const x=p.x*scale, y=p.y*scale;
+      minX=Math.min(minX,x); maxX=Math.max(maxX,x);
+      minY=Math.min(minY,y); maxY=Math.max(maxY,y);
+    });
+    return ep.shape;
+  });
+  if (!isFinite(minX)) return null;
+  const W = Math.ceil((maxX-minX)/mmPx)+2, H = Math.ceil((maxY-minY)/mmPx)+2;
+  if (W<3 || H<3 || W*H > 4.5e6) return null;
+  const cv = document.createElement('canvas'); cv.width=W; cv.height=H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle='#000'; ctx.beginPath();
+  polys.forEach(pts => {
+    pts.forEach((p,i) => {
+      const x=(p.x*scale-minX)/mmPx+1, y=(p.y*scale-minY)/mmPx+1;
+      i ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+    });
+    ctx.closePath();
+  });
+  ctx.fill('nonzero');
+  return { d: ctx.getImageData(0,0,W,H).data, W, H, minX, minY, mmPx };
+}
+
+// Etiqueta componentes conectados (flood-fill 4-conexo) y muestrea su borde
+function labelComponents(r, sampleCap) {
+  const { d, W, H } = r;
+  const on = (x,y) => d[(y*W+x)*4+3] > 128;
+  const labels = new Int32Array(W*H).fill(-1);
+  const qx = new Int32Array(W*H), qy = new Int32Array(W*H);
+  const compBoundary = [];
+
+  for (let y=0; y<H; y++) {
+    for (let x=0; x<W; x++) {
+      const idx = y*W+x;
+      if (!on(x,y) || labels[idx] !== -1) continue;
+      const id = compBoundary.length;
+      let qh=0, qt=0;
+      labels[idx] = id; qx[qt]=x; qy[qt]=y; qt++;
+      const boundary = [];
+      while (qh < qt) {
+        const cx = qx[qh], cy = qy[qh]; qh++;
+        let isB = false;
+        const nb = [[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]];
+        for (const [nx,ny] of nb) {
+          if (nx<0||ny<0||nx>=W||ny>=H) { isB = true; continue; }
+          if (!on(nx,ny)) { isB = true; continue; }
+          const ni = ny*W+nx;
+          if (labels[ni] === -1) { labels[ni]=id; qx[qt]=nx; qy[qt]=ny; qt++; }
+        }
+        if (isB) boundary.push({x:cx,y:cy});
+      }
+      let sampled = boundary;
+      if (boundary.length > sampleCap) {
+        sampled = [];
+        const step = boundary.length / sampleCap;
+        for (let i=0; i<sampleCap; i++) sampled.push(boundary[Math.floor(i*step)]);
+      }
+      compBoundary.push(sampled);
+    }
+  }
+  return compBoundary;
+}
+
+function nearestPair(a, b) {
+  let best = Infinity, pa = null, pb = null;
+  for (const p of a) for (const q of b) {
+    const dd = (p.x-q.x)*(p.x-q.x) + (p.y-q.y)*(p.y-q.y);
+    if (dd < best) { best = dd; pa = p; pb = q; }
+  }
+  return { pa, pb };
+}
+
+// Construye el puente: barra ancla-a-ancla + discos de soldadura en ambos extremos
+function bridgeShapes(g, thickMM, scale) {
+  const out = [];
+  const A = { x: g.ax, y: g.ay }, B = { x: g.bx, y: g.by };
+  let dx = B.x-A.x, dy = B.y-A.y;
+  const len = Math.hypot(dx,dy) || 1;
+  dx/=len; dy/=len;
+  const ov = Math.max(1.4, thickMM*0.8);
+  const A2 = { x: A.x - dx*ov, y: A.y - dy*ov };
+  const B2 = { x: B.x + dx*ov, y: B.y + dy*ov };
+  const nx = -dy, ny = dx, h = thickMM/2;
+
+  const bar = new THREE.Shape();
+  bar.moveTo((A2.x+nx*h)/scale, (A2.y+ny*h)/scale);
+  bar.lineTo((B2.x+nx*h)/scale, (B2.y+ny*h)/scale);
+  bar.lineTo((B2.x-nx*h)/scale, (B2.y-ny*h)/scale);
+  bar.lineTo((A2.x-nx*h)/scale, (A2.y-ny*h)/scale);
+  bar.closePath();
+  out.push(bar);
+
+  const rD = (h*1.25 + 0.35)/scale;
+  [A, B].forEach(P => {
+    const c = new THREE.Shape();
+    c.absarc(P.x/scale, P.y/scale, rD, 0, Math.PI*2, false);
+    out.push(c);
+  });
+  return out;
+}
+
+// Conecta TODOS los componentes con un arbol de expansion minima (Prim)
+function connectAllComponents(r, compBoundary, scale, thickMM) {
+  const { minX, minY, mmPx } = r;
+  const px2x = px => minX + (px-1)*mmPx;
+  const py2y = py => minY + (py-1)*mmPx;
+  const n = compBoundary.length;
+  if (n <= 1) return [];
+
+  const inTree = new Array(n).fill(false);
+  inTree[0] = true;
+  let added = 1;
+  const shapes = [];
+
+  while (added < n) {
+    let bestDist = Infinity, bestI=-1, bestJ=-1, bestPA=null, bestPB=null;
+    for (let i=0; i<n; i++) {
+      if (!inTree[i]) continue;
+      for (let j=0; j<n; j++) {
+        if (inTree[j]) continue;
+        const { pa, pb } = nearestPair(compBoundary[i], compBoundary[j]);
+        if (!pa || !pb) continue;
+        const dd = (pa.x-pb.x)*(pa.x-pb.x) + (pa.y-pb.y)*(pa.y-pb.y);
+        if (dd < bestDist) { bestDist=dd; bestI=i; bestJ=j; bestPA=pa; bestPB=pb; }
+      }
+    }
+    if (bestJ === -1) break;
+    inTree[bestJ] = true; added++;
+    const g = { ax: px2x(bestPA.x), ay: py2y(bestPA.y), bx: px2x(bestPB.x), by: py2y(bestPB.y) };
+    bridgeShapes(g, thickMM, scale).forEach(s => shapes.push(s));
+  }
+  return shapes;
+}
+
+// Verifica y fuerza la union en una sola pieza, con reintentos progresivos
+function connectBase(baseShapes, scale, outlineMM) {
+  let total = 0;
+  let mmPx = 0.35;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const r = rasterizeBase(baseShapes, scale, mmPx);
+    if (!r) { mmPx = Math.min(0.8, mmPx*1.4); continue; }
+    const comps = labelComponents(r, 350);
+    if (comps.length <= 1) break;
+    const thick = Math.max(2.8, outlineMM*1.4) * (1 + attempt*0.5);
+    const bridges = connectAllComponents(r, comps, scale, thick);
+    if (!bridges.length) { mmPx = Math.max(0.15, mmPx*0.6); continue; }
+    bridges.forEach(s => baseShapes.push(s));
+    total += bridges.length;
+  }
+  return total;
+}
+
+async function rebuild() {
+  const text = document.getElementById('txtName').value.trim();
+  const ov = document.getElementById('vOverlay');
+  if (!text) { ov.textContent = 'Escribe un nombre para comenzar'; ov.style.display = 'flex'; clearScene(); return; }
+
+  ov.textContent = 'Generando modelo 3D...'; ov.style.display = 'flex';
+
+  let font;
+  try { font = await loadFont(currentFont); }
+  catch (e) { ov.textContent = 'No se pudo cargar la fuente. Revisa tu conexión a internet.'; return; }
+
+  const FS = 100, targetH = v('inH'), outline = v('inO');
+  const tB = v('inTB'), tL = v('inTL');
+  const ringOn = document.getElementById('chkRing').checked, ringHole = v('inR');
+
+  // 1) letras
+  const { shapes: letterShapes, solidContours } = textToShapes(font, text, FS, 10);
+  if (!letterShapes.length) { ov.textContent = 'Ese texto no genera geometría.'; return; }
+
+  // 2) escala: altura real de las letras → mm
+  let mnY = 1e9, mxY = -1e9, mnX = 1e9, mxX = -1e9;
+  solidContours.forEach(c => c.pts.forEach(p => {
+    mnY = Math.min(mnY,p.y); mxY = Math.max(mxY,p.y);
+    mnX = Math.min(mnX,p.x); mxX = Math.max(mxX,p.x);
+  }));
+  const scale = targetH / (mxY - mnY);
+  const offU = outline / scale;               // borde en unidades de fuente
+  const ringOuterU = (ringHole/2 + 2.2) / scale;
+  const ringHoleU  = (ringHole/2) / scale;
+
+  // 3) base = silueta dilatada (copias radiales, sin huecos)
+  const N = 20;
+  const baseShapes = [];
+  solidContours.forEach(c => {
+    baseShapes.push(new THREE.Shape(c.pts));
+    for (let i = 0; i < N; i++) {
+      const a = (i/N) * Math.PI * 2;
+      const dx = Math.cos(a)*offU, dy = Math.sin(a)*offU;
+      baseShapes.push(new THREE.Shape(c.pts.map(p => new THREE.Vector2(p.x+dx, p.y+dy))));
+    }
+  });
+
+  // 4) argolla
+  if (ringOn) {
+    // Argolla integrada tipo "oreja", como en los llaveros de referencia:
+    // un lóbulo circular pegado directamente al contorno de la base, sin un
+    // cuello largo. El pequeño puente de soldadura queda oculto entre ambas
+    // siluetas y garantiza que el aro forme parte de la base.
+    const holeR = ringHoleU;
+    const wallMM = 2.4;
+    const ringR = holeR + wallMM / scale;
+    const centerY = (mnY + mxY) / 2;
+
+    // Raster de la base ANTES de añadir la argolla.
+    const rr = rasterizeBase(baseShapes, scale, 0.30);
+    const on = rr ? ((x,y) =>
+      x >= 0 && y >= 0 && x < rr.W && y < rr.H &&
+      rr.d[(y*rr.W+x)*4+3] > 128
+    ) : null;
+    const toPx = rr ? ((lx,ly) => [
+      (lx*scale - rr.minX)/rr.mmPx + 1,
+      (ly*scale - rr.minY)/rr.mmPx + 1
+    ]) : null;
+    const toLocal = rr ? ((px,py) => [
+      (rr.minX + (px-1)*rr.mmPx)/scale,
+      (rr.minY + (py-1)*rr.mmPx)/scale
+    ]) : null;
+
+    // 1) Punto de anclaje real sobre el borde izquierdo de la silueta.
+    // Se busca cerca de la altura media para evitar enganchar la argolla
+    // a una floritura extrema de la tipografía.
+    let ax = mnX, ay = centerY;
+    if (rr) {
+      const target = toPx(mnX - ringR * 0.45, centerY);
+      let best = Infinity, bx = -1, by = -1;
+
+      for (let y = 0; y < rr.H; y++) {
+        for (let x = 0; x < rr.W; x++) {
+          if (!on(x,y)) continue;
+
+          // Favorece el lado izquierdo, pero penaliza alejarse demasiado
+          // verticalmente del centro.
+          const dx = x - target[0];
+          const dy = (y - target[1]) * 1.35;
+          const dd = dx*dx + dy*dy;
+          if (dd < best) { best = dd; bx = x; by = y; }
+        }
+      }
+
+      if (bx >= 0) {
+        const p = toLocal(bx, by);
+        ax = p[0];
+        ay = p[1];
+      }
+    }
+
+    // 2) El círculo exterior se mete ~1.1 mm dentro del borde de la base.
+    // Eso produce la apariencia de una sola silueta, como en la foto.
+    const overlapMM = Math.min(1.15, wallMM * 0.48);
+    let cx = ax - ringR + overlapMM / scale;
+    const cy = ay;
+
+    // 3) Mantener el agujero totalmente fuera del material de las letras.
+    // Si alguna curva invade el agujero, se desplaza el aro gradualmente
+    // hacia la izquierda. Después el puente corto mantiene la unión.
+    if (rr) {
+      const clearanceMM = 0.35;
+      const clearR = holeR + clearanceMM / scale;
+      const clearPx = clearR * scale / rr.mmPx;
+      const step = 0.20 / scale;
+
+      for (let iter = 0; iter < 120; iter++) {
+        const hp = toPx(cx, cy);
+        const R = Math.ceil(clearPx);
+        let blocked = false;
+
+        for (let dy2 = -R; dy2 <= R && !blocked; dy2++) {
+          for (let dx2 = -R; dx2 <= R; dx2++) {
+            if (dx2*dx2 + dy2*dy2 > clearPx*clearPx) continue;
+            if (on(Math.round(hp[0] + dx2), Math.round(hp[1] + dy2))) {
+              blocked = true;
+              break;
+            }
+          }
+        }
+
+        if (!blocked) break;
+        cx -= step;
+      }
+    }
+
+    // 4) Lóbulo circular con agujero.
+    const loop = new THREE.Shape();
+    loop.absarc(cx, cy, ringR, 0, Math.PI*2, false);
+
+    const hole = new THREE.Path();
+    hole.absarc(cx, cy, holeR, 0, Math.PI*2, true);
+    loop.holes.push(hole);
+    baseShapes.push(loop);
+
+    // 5) Puente de soldadura MUY corto: conecta el lado derecho del aro
+    // con material existente, sin atravesar ni rellenar el agujero.
+    const neckHalf = Math.max(1.15, wallMM * 0.58) / scale;
+    const bridgeLeft = cx + holeR + 0.50 / scale;
+    const bridgeRight = ax + Math.max(1.25, Math.min(2.2, outline * 0.45)) / scale;
+
+    if (bridgeRight > bridgeLeft) {
+      const bridge = new THREE.Shape();
+      bridge.moveTo(bridgeLeft,  cy + neckHalf);
+      bridge.lineTo(bridgeRight, cy + neckHalf);
+      bridge.lineTo(bridgeRight, cy - neckHalf);
+      bridge.lineTo(bridgeLeft,  cy - neckHalf);
+      bridge.closePath();
+      baseShapes.push(bridge);
+
+      // Redondeo/soldadura en la zona de unión con la base. Queda casi
+      // totalmente dentro del borde, pero evita una unión de "un solo punto".
+      const weldR = Math.max(1.15, Math.min(1.8, outline * 0.38)) / scale;
+      const weld = new THREE.Shape();
+      weld.absarc(ax + 0.45/scale, cy, weldR, 0, Math.PI*2, false);
+      baseShapes.push(weld);
+    }
+  }
+
+
+  // 4.5) unir la base en una sola pieza continua
+  let nBridges = 0;
+  if (document.getElementById('chkSolid').checked) {
+    nBridges = connectBase(baseShapes, scale, outline);
+  }
+
+  // 5) geometrías
+  const gBase = new THREE.ExtrudeGeometry(baseShapes,   { depth: tB/scale, bevelEnabled: false, curveSegments: 6 });
+  const gText = new THREE.ExtrudeGeometry(letterShapes, { depth: tL/scale, bevelEnabled: false, curveSegments: 8 });
+  gBase.scale(scale, scale, scale);
+  gText.scale(scale, scale, scale);
+  gText.translate(0, 0, tB);
+
+  // centrar
+  gBase.computeBoundingBox();
+  const bb = gBase.boundingBox;
+  const cx = (bb.min.x+bb.max.x)/2, cy = (bb.min.y+bb.max.y)/2;
+  gBase.translate(-cx, -cy, 0);
+  gText.translate(-cx, -cy, 0);
+
+  lastGeo.base = gBase; lastGeo.text = gText;
+
+  // 6) medidas + área real
+  gBase.computeBoundingBox();
+  const b2 = gBase.boundingBox;
+  const dimX = b2.max.x-b2.min.x, dimY = b2.max.y-b2.min.y, dimZ = tB + tL;
+  document.getElementById('dX').textContent = dimX.toFixed(1);
+  document.getElementById('dY').textContent = dimY.toFixed(1);
+  document.getElementById('dZ').textContent = dimZ.toFixed(1);
+
+  const mmPx = Math.max(0.25, dimX/900);
+  lastGeo.areaBase = rasterArea(baseShapes, scale, mmPx);
+  lastGeo.areaText = rasterArea(letterShapes, scale, mmPx);
+  const volCm3 = (lastGeo.areaBase*tB + lastGeo.areaText*tL) / 1000;
+  document.getElementById('dVol').textContent = volCm3.toFixed(2);
+  lastGeo.vol = volCm3;
+
+  // avisos
+  const w = document.getElementById('warnBox');
+  const msgs = [];
+  if (nBridges > 0) msgs.push('Se agregaron ' + nBridges + ' puente(s) en la base para que quede como una sola pieza.');
+  if (!document.getElementById('chkSolid').checked && text.includes(' ')) msgs.push('Base continua desactivada: el nombre tiene espacios y podría imprimirse en partes sueltas.');
+  if (outline < 2.5) msgs.push('Un borde menor a 2.5 mm puede dejar letras frágiles.');
+  if (dimX > 220) msgs.push('El largo supera 220 mm — puede no caber en camas estándar.');
+  if (tL < 1.0) msgs.push('Letras de menos de 1 mm pueden no distinguirse bien.');
+  if (msgs.length) { w.innerHTML = msgs.join('<br>'); w.classList.remove('hidden'); }
+  else w.classList.add('hidden');
+
+  render3D(gBase, gText, Math.max(dimX, dimY));
+  price();
+  ov.style.display = 'none';
+}
+
+// ══════════ RENDER ══════════
+function clearScene(){ if(group && scene){ scene.remove(group); group = null; } }
+
+function render3D(gBase, gText, span) {
+  const wrap = document.getElementById('viewer');
+  if (!renderer) {
+    const W = wrap.clientWidth || 700, H = 420;
+    renderer = new THREE.WebGLRenderer({ antialias:true, preserveDrawingBuffer:true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0xdfe3e6, 1);
+    wrap.appendChild(renderer.domElement);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(40, W/H, 0.1, 5000);
+    scene.add(camera);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.38));
+    // Luz principal FIJA en el mundo — crea sombras y volumen reales sobre las curvas
+    const dKey = new THREE.DirectionalLight(0xffffff, 0.95); dKey.position.set(80, 130, 90); scene.add(dKey);
+    // Relleno fijo, suave, del lado opuesto — evita sombras totalmente negras
+    const dFill = new THREE.DirectionalLight(0xffffff, 0.28); dFill.position.set(-110, -20, 40); scene.add(dFill);
+    // Contraluz fija para separar el borde del fondo
+    const dRim = new THREE.DirectionalLight(0xffffff, 0.22); dRim.position.set(0, 40, -120); scene.add(dRim);
+    // Luz tenue pegada a la cámara — SOLO de apoyo, para que el lado que mires
+    // nunca quede negro al girar, sin dominar ni aplanar el modelo.
+    const dHead = new THREE.DirectionalLight(0xffffff, 0.22); dHead.position.set(10, 15, 40); camera.add(dHead);
+    const cv = renderer.domElement;
+    cv.addEventListener('mousedown', e => { drag = true; autoRot = false; lx = e.clientX; ly = e.clientY; e.preventDefault(); });
+    cv.addEventListener('mousemove', e => { if(!drag) return; sph.theta -= (e.clientX-lx)*0.008; sph.phi = Math.max(0.15, Math.min(Math.PI-0.15, sph.phi + (e.clientY-ly)*0.008)); lx = e.clientX; ly = e.clientY; cam(); });
+    cv.addEventListener('mouseup', () => drag = false);
+    cv.addEventListener('mouseleave', () => drag = false);
+    cv.addEventListener('wheel', e => { e.preventDefault(); sph.radius = Math.max(20, sph.radius*(1+e.deltaY*0.0012)); cam(); }, { passive:false });
+    cv.addEventListener('touchstart', e => { if(e.touches.length===1){ drag=true; autoRot=false; lx=e.touches[0].clientX; ly=e.touches[0].clientY; } e.preventDefault(); }, { passive:false });
+    cv.addEventListener('touchmove', e => { if(!drag||e.touches.length!==1) return; sph.theta -= (e.touches[0].clientX-lx)*0.008; sph.phi = Math.max(0.15, Math.min(Math.PI-0.15, sph.phi+(e.touches[0].clientY-ly)*0.008)); lx=e.touches[0].clientX; ly=e.touches[0].clientY; cam(); e.preventDefault(); }, { passive:false });
+    cv.addEventListener('touchend', () => drag = false);
+    (function loop(){ rafId = requestAnimationFrame(loop); if(autoRot){ sph.theta += 0.004; cam(); } renderer.render(scene, camera); })();
+  }
+  clearScene();
+  group = new THREE.Group();
+  group.add(new THREE.Mesh(gBase, new THREE.MeshPhongMaterial({ color: colorBase, shininess: 12, specular: 0x161616 })));
+  group.add(new THREE.Mesh(gText, new THREE.MeshPhongMaterial({ color: colorText, shininess: 18, specular: 0x1a1a1a })));
+  group.rotation.x = -0.62;
+  scene.add(group);
+  sph.radius = span * 1.85;
+  cam();
+}
+function cam(){ if(!camera) return; camera.position.set(sph.radius*Math.sin(sph.phi)*Math.sin(sph.theta), sph.radius*Math.cos(sph.phi), sph.radius*Math.sin(sph.phi)*Math.cos(sph.theta)); camera.lookAt(0,0,0); }
+function applyColors(){ if(!group) return; group.children[0].material.color.set(colorBase); group.children[1].material.color.set(colorText); }
+
+// ══════════ PRECIO ══════════
+function price() {
+  if (!lastGeo.vol) return;
+  const q = Math.max(1, parseInt(document.getElementById('inQty').value)||1);
+  const infill = v('inInfill')/100;
+  const eff = 0.30 + 0.70*infill;
+  const peso = lastGeo.vol * DENSIDAD * eff;
+  const horas = (lastGeo.vol*1000*eff) / (0.44*LAYER_H*50) / 3600;
+  const unit = ((peso/1000)*PRECIO_KG + horas*COSTO_HORA) * (1+MARGEN);
+  const disc = q >= 20 ? 0.15 : q >= 10 ? 0.10 : q >= 5 ? 0.05 : 0;
+  const total = unit * q * (1-disc);
+  const f = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('pLabel').textContent = q + (q>1?' piezas':' pieza');
+  document.getElementById('pSub').textContent = '$' + f(total/q) + ' c/u' + (disc>0 ? '  ·  '+(disc*100).toFixed(0)+'% desc.' : '') + '  ·  ' + peso.toFixed(1) + ' g/pz';
+  document.getElementById('pTotal').textContent = f(total);
+}
+
+// ══════════ EXPORTAR STL ══════════
+function geoTris(geo, out) {
+  const pos = geo.attributes.position, idx = geo.index;
+  const n = idx ? idx.count : pos.count;
+  for (let i = 0; i < n; i += 3) {
+    const t = [];
+    for (let k = 0; k < 3; k++) {
+      const j = idx ? idx.getX(i+k) : i+k;
+      t.push([pos.getX(j), pos.getY(j), pos.getZ(j)]);
+    }
+    out.push(t);
+  }
+}
+function exportSTL(which) {
+  if (!lastGeo.base) return;
+  const tris = [];
+  if (which === 'all' || which === 'base') geoTris(lastGeo.base, tris);
+  if (which === 'all' || which === 'text') geoTris(lastGeo.text, tris);
+  if (!tris.length) return;
+
+  const buf = new ArrayBuffer(84 + tris.length*50);
+  const dv = new DataView(buf);
+  const enc = 'Llavero 3D generado';
+  for (let i = 0; i < 80; i++) dv.setUint8(i, i < enc.length ? enc.charCodeAt(i) : 32);
+  dv.setUint32(80, tris.length, true);
+  let o = 84;
+  tris.forEach(t => {
+    const ux = t[1][0]-t[0][0], uy = t[1][1]-t[0][1], uz = t[1][2]-t[0][2];
+    const vx = t[2][0]-t[0][0], vy = t[2][1]-t[0][1], vz = t[2][2]-t[0][2];
+    let nx = uy*vz-uz*vy, ny = uz*vx-ux*vz, nz = ux*vy-uy*vx;
+    const L = Math.hypot(nx,ny,nz) || 1; nx/=L; ny/=L; nz/=L;
+    dv.setFloat32(o,nx,true); dv.setFloat32(o+4,ny,true); dv.setFloat32(o+8,nz,true); o += 12;
+    t.forEach(p => { dv.setFloat32(o,p[0],true); dv.setFloat32(o+4,p[1],true); dv.setFloat32(o+8,p[2],true); o += 12; });
+    dv.setUint16(o, 0, true); o += 2;
+  });
+
+  const name = (document.getElementById('txtName').value.trim() || 'llavero').replace(/\s+/g,'_');
+  const sfx = which === 'all' ? '' : which === 'base' ? '_base' : '_letras';
+  const url = URL.createObjectURL(new Blob([buf], { type:'application/octet-stream' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = `${name}${sfx}.stl`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+rebuild();
+</script>
+</body>
+</html>

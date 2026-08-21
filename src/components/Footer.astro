@@ -1,0 +1,35 @@
+---
+import { siteConfig, whatsappLink } from '../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-ocean-100 bg-ocean-900 text-sand-100 mt-16">
+  <div class="mx-auto max-w-6xl px-5 py-10 grid gap-8 sm:grid-cols-3 text-sm">
+    <div>
+      <p class="font-semibold font-display text-lg mb-2">{siteConfig.name}</p>
+      <p class="text-sand-100/70">{siteConfig.tagline}</p>
+      <p class="text-sand-100/50 mt-2">{siteConfig.city}, {siteConfig.region}</p>
+    </div>
+
+    <div>
+      <p class="font-semibold mb-2">Explora</p>
+      <ul class="space-y-1 text-sand-100/70">
+        <li><a href="/productos/" class="hover:text-white">Productos personalizados</a></li>
+        <li><a href="/como-funciona/" class="hover:text-white">Cómo funciona</a></li>
+        <li><a href="/contacto/" class="hover:text-white">Contacto</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="font-semibold mb-2">Contacto</p>
+      <ul class="space-y-1 text-sand-100/70">
+        <li><a href={whatsappLink()} class="hover:text-white" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+        <li><a href={`mailto:${siteConfig.email}`} class="hover:text-white">{siteConfig.email}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10 py-4 text-center text-xs text-sand-100/50">
+    © {year} {siteConfig.legalName}. Todos los derechos reservados.
+  </div>
+</footer>
