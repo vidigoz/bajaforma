@@ -25,6 +25,7 @@ const FALLBACK_PRODUCTS: Product[] = [
       'Escribe un nombre, elige tipografía y colores, y descarga tu llavero 3D listo para imprimir.',
     emoji: '🔑',
     imageUrl: null,
+    toolUrl: '/tools/llaveros-personalizados.html',
     status: 'disponible'
   }
 ];
@@ -35,7 +36,7 @@ export async function getProducts(): Promise<Product[]> {
 
   try {
     const rows = await sql`
-      select slug, name, short_description, emoji, image_key, status
+      select slug, name, short_description, emoji, image_key, tool_url, status
       from products
       order by sort_order asc, id asc
     `;
@@ -46,6 +47,7 @@ export async function getProducts(): Promise<Product[]> {
       shortDescription: r.short_description,
       emoji: r.emoji,
       imageUrl: r.image_key ? `/api/product-image?key=${encodeURIComponent(r.image_key)}` : null,
+      toolUrl: r.tool_url || null,
       status: r.status
     }));
   } catch (err) {

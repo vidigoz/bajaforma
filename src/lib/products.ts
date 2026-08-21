@@ -9,5 +9,7 @@ export type Product = {
   emoji: string;
   /** URL pública del thumbnail subido en el dashboard, o null si usa el emoji. */
   imageUrl: string | null;
+  /** A dónde va "Personalizar": la herramienta directa si existe, si no la página del producto. */
+  toolUrl: string | null;
   status: 'disponible' | 'proximamente';
 };

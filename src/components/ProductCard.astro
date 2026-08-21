@@ -6,11 +6,12 @@ interface Props {
 }
 const { product } = Astro.props;
 const isAvailable = product.status === 'disponible';
+const href = product.toolUrl || `/productos/${product.slug}/`;
 ---
 
 {isAvailable ? (
   <a
-    href={`/productos/${product.slug}/`}
+    href={href}
     class="group flex flex-col h-full rounded-2xl border border-ocean-100 overflow-hidden hover:border-ocean-400 hover:shadow-md transition-all bg-white"
   >
     <div class="aspect-[4/3] w-full overflow-hidden bg-ocean-50 flex items-center justify-center">

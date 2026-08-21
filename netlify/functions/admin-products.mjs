@@ -26,7 +26,7 @@ export default async (req) => {
     if (unauthorized) return unauthorized;
     const sql = db();
     const rows = await sql`
-      select id, slug, name, short_description, emoji, image_key, status, sort_order
+      select id, slug, name, short_description, emoji, image_key, tool_url, status, sort_order
       from products
       order by sort_order asc, id asc
     `;
@@ -43,9 +43,9 @@ export default async (req) => {
     const sql = db();
     try {
       const [row] = await sql`
-        insert into products (slug, name, short_description, emoji, image_key, status, sort_order)
-        values (${b.slug}, ${b.name}, ${b.short_description || ''}, ${b.emoji || '✨'}, ${b.image_key || null}, ${b.status || 'proximamente'}, ${b.sort_order ?? 0})
-        returning id, slug, name, short_description, emoji, image_key, status, sort_order
+        insert into products (slug, name, short_description, emoji, image_key, tool_url, status, sort_order)
+        values (${b.slug}, ${b.name}, ${b.short_description || ''}, ${b.emoji || '✨'}, ${b.image_key || null}, ${b.tool_url || null}, ${b.status || 'proximamente'}, ${b.sort_order ?? 0})
+        returning id, slug, name, short_description, emoji, image_key, tool_url, status, sort_order
       `;
       return json({ product: row }, { status: 201 });
     } catch (err) {
@@ -70,11 +70,12 @@ export default async (req) => {
         short_description = ${b.short_description || ''},
         emoji = ${b.emoji || '✨'},
         image_key = ${newImageKey},
+        tool_url = ${b.tool_url || null},
         status = ${b.status || 'proximamente'},
         sort_order = ${b.sort_order ?? 0},
         updated_at = now()
       where id = ${b.id}
-      returning id, slug, name, short_description, emoji, image_key, status, sort_order
+      returning id, slug, name, short_description, emoji, image_key, tool_url, status, sort_order
     `;
     if (!row) return json({ error: 'No existe ese producto.' }, { status: 404 });
 

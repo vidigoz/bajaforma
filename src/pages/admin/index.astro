@@ -189,6 +189,11 @@ import Layout from '../../layouts/Layout.astro';
         <div><label class="text-xs text-ink-soft">Slug</label><input class="field f-slug" value="${p.slug || ''}"></div>
         <div><label class="text-xs text-ink-soft">Nombre</label><input class="field f-name" value="${p.name || ''}"></div>
         <div class="sm:col-span-2"><label class="text-xs text-ink-soft">Descripción</label><input class="field f-desc" value="${(p.short_description || '').replace(/"/g, '&quot;')}"></div>
+        <div class="sm:col-span-2">
+          <label class="text-xs text-ink-soft">URL de la herramienta (opcional)</label>
+          <input class="field f-toolurl" placeholder="/tools/mi-herramienta.html" value="${(p.tool_url || '').replace(/"/g, '&quot;')}">
+          <p class="text-xs text-ink-soft mt-1">Si la llenas, "Personalizar" salta directo aquí en vez de ir a /productos/&lt;slug&gt;/.</p>
+        </div>
         <div><label class="text-xs text-ink-soft">Emoji (si no subes foto)</label><input class="field f-emoji" value="${p.emoji || ''}"></div>
         <div>
           <label class="text-xs text-ink-soft">Estado</label>
@@ -249,6 +254,7 @@ import Layout from '../../layouts/Layout.astro';
             short_description: $('.f-desc', div).value.trim(),
             emoji: $('.f-emoji', div).value.trim(),
             image_key: div.dataset.imageKey || null,
+            tool_url: $('.f-toolurl', div).value.trim() || null,
             status: $('.f-status', div).value,
             sort_order: Number($('.f-order', div).value) || 0
           })
