@@ -5,3 +5,17 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+[dev]
+  # Astro 7 mantiene su propio dev server persistente en segundo plano (se
+  # queda vivo entre invocaciones de "astro dev"), lo que confunde al
+  # supervisor de procesos de netlify dev (ve que "npm run dev" termina y
+  # cree que el servidor murió). En vez de dejar que netlify dev intente
+  # lanzarlo, aquí solo le decimos a dónde debe apuntar su proxy — el
+  # servidor de Astro se arranca por separado con "npm run dev".
+  framework = "#custom"
+  targetPort = 4321
+  autoLaunch = false
+  # No-op: netlify dev exige un "command" con #custom, pero el Astro real ya
+  # se arranca aparte (ver arriba) — este solo mantiene vivo al supervisor.
+  command = "node -e \"setInterval(()=>{}, 1000000)\""

@@ -56,12 +56,22 @@ npm install
 npm run dev
 ```
 
-Para probar también la función de contacto localmente (requiere la CLI de
-Netlify: `npm i -g netlify-cli`):
+Para probar también la función de contacto (Neon) localmente, con la CLI de
+Netlify (`npm i -g netlify-cli`):
 
 ```bash
-netlify dev
+npm run dev      # arranca Astro (queda corriendo en 2do plano, así es Astro 7)
+netlify dev       # abre http://localhost:8888 — hace de proxy + sirve /api/contacto
 ```
+
+Astro 7 mantiene su servidor de dev como un proceso persistente en 2do plano
+(sobrevive aunque el comando que lo lanzó termine). Eso confunde al supervisor
+de procesos de `netlify dev` si intenta lanzarlo él mismo, así que
+`netlify.toml` ya trae un `[dev]` con `framework = "#custom"` apuntando al
+puerto 4321 — por eso el orden de arriba (primero Astro, luego `netlify dev`)
+es el que hay que seguir. Si el puerto 8888 ya está ocupado por otra cosa en
+tu máquina, usa `netlify dev --port 8889`. Para parar el Astro de fondo:
+`npx astro dev stop`.
 
 ## Neon (base de datos)
 
