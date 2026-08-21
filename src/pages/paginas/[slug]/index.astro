@@ -1,0 +1,22 @@
+---
+// Páginas libres creadas desde el dashboard (tabla `pages` + `page_blocks`).
+// getStaticPaths corre en build: cada fila publicada se convierte en una
+// ruta estática real, /paginas/<slug>/, indexable igual que el resto del sitio.
+import Layout from '../../../layouts/Layout.astro';
+import BlockRenderer from '../../../components/BlockRenderer.astro';
+import { getPublishedPages } from '../../../lib/db';
+
+export async function getStaticPaths() {
+  const pages = await getPublishedPages();
+  return pages.map((page) => ({ params: { slug: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+---
+
+<Layout title={page.title} description={page.metaDescription || page.title}>
+  <section class="mx-auto max-w-3xl px-5 py-14 space-y-10">
+    <h1 class="text-3xl sm:text-4xl font-semibold">{page.title}</h1>
+    {page.blocks.map((block) => <BlockRenderer block={block} />)}
+  </section>
+</Layout>

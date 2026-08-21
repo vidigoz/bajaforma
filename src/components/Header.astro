@@ -1,9 +1,14 @@
 ---
 import { siteConfig, whatsappLink } from '../lib/site';
+import { getPublishedPages } from '../lib/db';
 
+const cmsPages = await getPublishedPages();
 const navLinks = [
   { href: '/productos/', label: 'Productos personalizados' },
   { href: '/como-funciona/', label: 'Cómo funciona' },
+  ...cmsPages
+    .filter((p) => p.navLabel)
+    .map((p) => ({ href: `/paginas/${p.slug}/`, label: p.navLabel as string })),
   { href: '/contacto/', label: 'Contacto' }
 ];
 

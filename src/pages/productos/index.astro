@@ -1,7 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import { products } from '../../lib/products';
+import { getProducts } from '../../lib/db';
+
+const products = await getProducts();
 ---
 
 <Layout

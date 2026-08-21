@@ -9,23 +9,55 @@ con Neon (Postgres) como base de datos opcional para el formulario de contacto.
 ```
 src/
   layouts/Layout.astro      # SEO, meta tags, JSON-LD, header/footer
-  components/                # Header, Footer, ProductCard
+  components/                # Header, Footer, ProductCard, BlockRenderer
   lib/site.ts                 # Datos de la empresa (nombre, WhatsApp, correo…)
-  lib/products.ts              # Catálogo de productos personalizados
+  lib/db.ts                    # Lecturas a Neon EN BUILD (productos, textos, páginas)
+  lib/products.ts               # Solo el tipo Product + fallback
   pages/
-    index.astro                # Home
-    productos/index.astro       # Catálogo
+    index.astro                # Home (textos + productos vienen de Neon)
+    productos/index.astro       # Catálogo (viene de Neon)
     productos/llaveros-personalizados/index.astro   # Página del producto + tool
     como-funciona/index.astro
     contacto/index.astro        # Formulario → Netlify Function → Neon
+    paginas/[slug]/index.astro   # Páginas libres creadas desde /admin/
+    admin/index.astro             # Dashboard (login + panel)
 
 public/
   tools/llaveros-personalizados.html   # Configurador 3D (HTML/JS independiente)
   robots.txt, llms.txt, og-default.svg
 
-netlify/functions/contacto.mjs   # Guarda el formulario de contacto en Neon
-db/schema.sql                     # Tabla que necesita esa función
+netlify/functions/
+  contacto.mjs                  # Formulario de contacto → Neon
+  admin-login.mjs, admin-logout.mjs, admin-session.mjs   # Auth del dashboard
+  admin-products.mjs, admin-texts.mjs, admin-pages.mjs, admin-blocks.mjs   # CRUD
+  admin-publish.mjs             # Dispara el Build Hook de Netlify
+  _lib/auth.mjs                  # Cookie de sesión firmada (compartido)
+
+db/
+  schema.sql                    # Todas las tablas (contact_messages, products,
+                                 # site_texts, pages, page_blocks)
+  seed.mjs                       # Siembra el contenido inicial (node db/seed.mjs)
 ```
+
+### El dashboard (`/admin/`)
+
+Panel con **una sola contraseña** (no hay cuentas de usuario), pensado para
+que tú edites el sitio sin tocar código:
+
+- **Productos** — el catálogo de `/productos/` (crear, editar, borrar, orden).
+- **Textos** — los textos sueltos del home (título, subtítulo, pasos de "Cómo
+  funciona"), identificados por una llave tipo `home.hero.title`.
+- **Páginas** — páginas libres nuevas en `/paginas/<slug>/`, armadas con
+  bloques (texto, preguntas frecuentes, llamado a la acción) que agregas,
+  reordenas o borras. Si le pones "nombre en el menú", aparece en el header.
+- **Publicar** — el sitio sigue siendo 100% estático: los cambios de arriba
+  quedan guardados en Neon al instante, pero el sitio público no cambia hasta
+  que aprietas "Publicar" (dispara un rebuild en Netlify, ~30-60s).
+
+Todo lo que el dashboard edita se lee desde `src/lib/db.ts` **en tiempo de
+build** (`getProducts`, `getTexts`, `getPublishedPages`) — si Neon no responde
+o una tabla está vacía, cada función cae a un contenido por defecto para que
+el build nunca se rompa.
 
 ### Por qué la herramienta 3D vive aparte
 
@@ -38,7 +70,8 @@ necesitan indexar; la app en sí no tiene texto que indexar.
 
 Cuando hagas el siguiente configurador, puedes copiar ese mismo patrón:
 1. El HTML de la herramienta va a `public/tools/<slug>.html`.
-2. Agrégalo a `src/lib/products.ts`.
+2. Agrégalo al catálogo desde `/admin/` → Productos (o directo en la tabla
+   `products` de Neon) con el mismo `slug`.
 3. Crea `src/pages/productos/<slug>/index.astro` copiando la estructura de
    la página de llaveros.
 
@@ -76,21 +109,37 @@ tu máquina, usa `netlify dev --port 8889`. Para parar el Astro de fondo:
 ## Neon (base de datos)
 
 1. Crea un proyecto en [neon.tech](https://neon.tech).
-2. Corre `db/schema.sql` en el editor SQL de Neon (crea la tabla `contact_messages`).
-3. Copia la cadena de conexión y ponla como `DATABASE_URL`:
+2. Corre `db/schema.sql` en el editor SQL de Neon (crea todas las tablas —
+   es seguro volver a correrlo, usa `if not exists`).
+3. La primera vez, siembra el contenido inicial: `node db/seed.mjs` (lee
+   `DATABASE_URL` de tu `.env` local).
+4. Copia la cadena de conexión y ponla como `DATABASE_URL`:
    - Local: en un archivo `.env` (ver `.env.example`).
    - Producción: en Netlify → Site settings → Environment variables.
 
-Si `DATABASE_URL` no está configurada, el formulario de contacto muestra un
-error amigable y el sitio sigue funcionando normalmente (WhatsApp/correo
-como alternativa).
+Si `DATABASE_URL` no está configurada, el formulario de contacto y el
+dashboard muestran un error amigable y el sitio público sigue funcionando
+con el contenido por defecto (WhatsApp/correo como alternativa).
 
 ## Despliegue en Netlify
 
 1. Sube este repo a GitHub/GitLab y conéctalo en Netlify ("Import from Git").
 2. Build command: `npm run build` — Publish directory: `dist` (ya están en `netlify.toml`).
-3. Agrega la variable de entorno `DATABASE_URL` (ver arriba).
+3. Agrega las variables de entorno (Site settings → Environment variables):
+   - `DATABASE_URL` — tu conexión de Neon.
+   - `DASHBOARD_PASSWORD` — la contraseña para entrar a `/admin/`.
+   - `DASHBOARD_SESSION_SECRET` — genera una con
+     `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+   - `NETLIFY_BUILD_HOOK_URL` — créalo en Site settings → Build & deploy →
+     Build hooks (dale un nombre, ej. "dashboard"), pega la URL aquí. Es lo
+     que usa el botón "Publicar" del dashboard para redesplegar el sitio.
 4. Conecta tu dominio real y actualiza `site` en `astro.config.mjs` + los datos en `src/lib/site.ts`.
+
+**Importante:** como el build ahora lee Neon (`getProducts`/`getTexts`/
+`getPublishedPages`), `DATABASE_URL` tiene que estar configurada también para
+el propio *build* de Netlify (no solo para las Functions) — si no, el sitio
+se sigue publicando bien, pero con el contenido por defecto en vez del que
+esté en la base.
 
 ## SEO / indexabilidad
 

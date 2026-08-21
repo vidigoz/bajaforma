@@ -1,7 +1,6 @@
-// Catálogo de "productos personalizados" (configuradores interactivos).
-// Cada uno vive en su propia página bajo /productos/<slug>/. Añade aquí
-// los que vengan después — la página de catálogo se arma sola a partir
-// de esta lista.
+// El catálogo de productos ahora vive en Neon (tabla `products`, editable
+// desde /admin/) — ver getProducts() en ./db.ts. Este archivo solo conserva
+// el tipo compartido y el fallback usado cuando la base no responde.
 
 export type Product = {
   slug: string;
@@ -10,21 +9,3 @@ export type Product = {
   emoji: string;
   status: 'disponible' | 'proximamente';
 };
-
-export const products: Product[] = [
-  {
-    slug: 'llaveros-personalizados',
-    name: 'Llaveros con nombre',
-    shortDescription:
-      'Escribe un nombre, elige tipografía y colores, y descarga tu llavero 3D listo para imprimir.',
-    emoji: '🔑',
-    status: 'disponible'
-  },
-  {
-    slug: 'proximamente-1',
-    name: 'Próximamente',
-    shortDescription: 'Estamos preparando un nuevo configurador. Vuelve pronto.',
-    emoji: '✨',
-    status: 'proximamente'
-  }
-];
