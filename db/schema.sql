@@ -24,10 +24,13 @@ create table if not exists products (
   name text not null,
   short_description text not null,
   emoji text not null default '✨',
+  -- Llave del thumbnail en Netlify Blobs (store "product-images"). NULL = usa el emoji.
+  image_key text,
   status text not null default 'proximamente' check (status in ('disponible', 'proximamente')),
   sort_order int not null default 0,
   updated_at timestamptz not null default now()
 );
+alter table products add column if not exists image_key text;
 
 -- Textos sueltos de las páginas fijas del sitio (home, cómo funciona, contacto…),
 -- direccionados por una llave tipo "home.hero.title".

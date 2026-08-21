@@ -11,18 +11,44 @@ const isAvailable = product.status === 'disponible';
 {isAvailable ? (
   <a
     href={`/productos/${product.slug}/`}
-    class="group block rounded-2xl border border-ocean-100 p-6 hover:border-ocean-400 hover:shadow-md transition-all bg-white"
+    class="group flex flex-col h-full rounded-2xl border border-ocean-100 overflow-hidden hover:border-ocean-400 hover:shadow-md transition-all bg-white"
   >
-    <span class="text-3xl" aria-hidden="true">{product.emoji}</span>
-    <h3 class="mt-3 font-semibold text-ink group-hover:text-ocean-600">{product.name}</h3>
-    <p class="mt-1 text-sm text-ink-soft">{product.shortDescription}</p>
-    <span class="mt-4 inline-block text-sm font-medium text-ocean-500">Personalizar →</span>
+    <div class="aspect-[4/3] w-full overflow-hidden bg-ocean-50 flex items-center justify-center">
+      {product.imageUrl ? (
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          loading="lazy"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      ) : (
+        <span class="text-5xl" aria-hidden="true">{product.emoji}</span>
+      )}
+    </div>
+    <div class="p-6 flex flex-col flex-1">
+      <h3 class="font-semibold text-ink group-hover:text-ocean-600">{product.name}</h3>
+      <p class="mt-1 text-sm text-ink-soft flex-1">{product.shortDescription}</p>
+      <span class="mt-4 flex items-center justify-center gap-1 rounded-full bg-ocean-50 group-hover:bg-ocean-500 text-ocean-600 group-hover:text-white text-sm font-semibold px-4 py-2.5 transition-colors">
+        Personalizar
+        <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+      </span>
+    </div>
   </a>
 ) : (
-  <div class="rounded-2xl border border-dashed border-ocean-100 p-6 bg-sand-100/40">
-    <span class="text-3xl opacity-60" aria-hidden="true">{product.emoji}</span>
-    <h3 class="mt-3 font-semibold text-ink-soft">{product.name}</h3>
-    <p class="mt-1 text-sm text-ink-soft/80">{product.shortDescription}</p>
-    <span class="mt-4 inline-block text-xs font-semibold uppercase tracking-wide text-ink-soft/60">Próximamente</span>
+  <div class="flex flex-col h-full rounded-2xl border border-dashed border-ocean-100 overflow-hidden bg-sand-100/40">
+    <div class="aspect-[4/3] w-full overflow-hidden bg-sand-100 flex items-center justify-center">
+      {product.imageUrl ? (
+        <img src={product.imageUrl} alt={product.name} loading="lazy" class="w-full h-full object-cover opacity-70" />
+      ) : (
+        <span class="text-5xl opacity-50" aria-hidden="true">{product.emoji}</span>
+      )}
+    </div>
+    <div class="p-6 flex flex-col flex-1">
+      <h3 class="font-semibold text-ink-soft">{product.name}</h3>
+      <p class="mt-1 text-sm text-ink-soft/80 flex-1">{product.shortDescription}</p>
+      <span class="mt-4 self-start text-xs font-semibold uppercase tracking-wide text-ink-soft/60 bg-white rounded-full px-3 py-1 border border-ocean-100">
+        Próximamente
+      </span>
+    </div>
   </div>
 )}

@@ -77,6 +77,9 @@ import Layout from '../../layouts/Layout.astro';
   .field { display: block; width: 100%; border: 1px solid var(--color-ocean-100); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
   .field:focus { outline: none; box-shadow: 0 0 0 2px var(--color-ocean-100); border-color: var(--color-ocean-400); }
   .card { border: 1px solid var(--color-ocean-100); border-radius: 12px; padding: 16px; background: white; }
+  .thumb-box { width: 88px; height: 88px; flex-shrink: 0; border-radius: 10px; overflow: hidden; background: var(--color-ocean-50); display: flex; align-items: center; justify-content: center; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-emoji { font-size: 32px; }
 </style>
 
 <script is:inline>
@@ -149,15 +152,44 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   // ═══════ Productos ═══════
+  const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
+
+  function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function thumbPreviewHtml(p) {
+    return p.image_key
+      ? `<img class="thumb-img" src="/api/product-image?key=${encodeURIComponent(p.image_key)}" alt="">`
+      : `<span class="thumb-emoji">${p.emoji || '✨'}</span>`;
+  }
+
   function productoCard(p) {
     const div = document.createElement('div');
     div.className = 'card';
+    div.dataset.imageKey = p.image_key || '';
     div.innerHTML = `
+      <div class="flex gap-4 mb-3">
+        <div class="thumb-box">${thumbPreviewHtml(p)}</div>
+        <div class="flex flex-col justify-center gap-1">
+          <label class="btn-sec" style="cursor:pointer;text-align:center">
+            Subir foto
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="f-image-input hidden">
+          </label>
+          <button type="button" class="remove-image-btn text-xs text-ink-soft hover:text-red-600 ${p.image_key ? '' : 'hidden'}">Quitar foto</button>
+          <span class="image-msg text-xs text-ink-soft"></span>
+        </div>
+      </div>
       <div class="grid sm:grid-cols-2 gap-3">
         <div><label class="text-xs text-ink-soft">Slug</label><input class="field f-slug" value="${p.slug || ''}"></div>
         <div><label class="text-xs text-ink-soft">Nombre</label><input class="field f-name" value="${p.name || ''}"></div>
         <div class="sm:col-span-2"><label class="text-xs text-ink-soft">Descripción</label><input class="field f-desc" value="${(p.short_description || '').replace(/"/g, '&quot;')}"></div>
-        <div><label class="text-xs text-ink-soft">Emoji</label><input class="field f-emoji" value="${p.emoji || ''}"></div>
+        <div><label class="text-xs text-ink-soft">Emoji (si no subes foto)</label><input class="field f-emoji" value="${p.emoji || ''}"></div>
         <div>
           <label class="text-xs text-ink-soft">Estado</label>
           <select class="field f-status">
@@ -173,6 +205,37 @@ import Layout from '../../layouts/Layout.astro';
         <span class="msg text-sm text-ink-soft"></span>
       </div>
     `;
+
+    const imageMsg = $('.image-msg', div);
+    $('.f-image-input', div).addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > MAX_IMAGE_BYTES) {
+        imageMsg.textContent = 'Máx. 3MB.';
+        return;
+      }
+      imageMsg.textContent = 'Subiendo…';
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        const { key, url } = await api('/api/admin/upload-image', {
+          method: 'POST',
+          body: JSON.stringify({ dataUrl, previousKey: div.dataset.imageKey || undefined })
+        });
+        div.dataset.imageKey = key;
+        $('.thumb-box', div).innerHTML = `<img class="thumb-img" src="${url}" alt="">`;
+        $('.remove-image-btn', div).classList.remove('hidden');
+        imageMsg.textContent = 'Subida ✓';
+      } catch (ex) {
+        imageMsg.textContent = ex.message;
+      }
+    });
+    $('.remove-image-btn', div).addEventListener('click', () => {
+      div.dataset.imageKey = '';
+      $('.thumb-box', div).innerHTML = `<span class="thumb-emoji">${$('.f-emoji', div).value.trim() || '✨'}</span>`;
+      $('.remove-image-btn', div).classList.add('hidden');
+      imageMsg.textContent = '';
+    });
+
     const msg = $('.msg', div);
     $('.save-btn', div).addEventListener('click', async () => {
       msg.textContent = 'Guardando…';
@@ -185,6 +248,7 @@ import Layout from '../../layouts/Layout.astro';
             name: $('.f-name', div).value.trim(),
             short_description: $('.f-desc', div).value.trim(),
             emoji: $('.f-emoji', div).value.trim(),
+            image_key: div.dataset.imageKey || null,
             status: $('.f-status', div).value,
             sort_order: Number($('.f-order', div).value) || 0
           })

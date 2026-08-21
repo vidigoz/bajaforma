@@ -30,6 +30,8 @@ netlify/functions/
   contacto.mjs                  # Formulario de contacto → Neon
   admin-login.mjs, admin-logout.mjs, admin-session.mjs   # Auth del dashboard
   admin-products.mjs, admin-texts.mjs, admin-pages.mjs, admin-blocks.mjs   # CRUD
+  admin-upload-image.mjs         # Sube el thumbnail de un producto a Netlify Blobs
+  product-image.mjs               # Sirve esos thumbnails (pública, sin auth)
   admin-publish.mjs             # Dispara el Build Hook de Netlify
   _lib/auth.mjs                  # Cookie de sesión firmada (compartido)
 
@@ -44,7 +46,8 @@ db/
 Panel con **una sola contraseña** (no hay cuentas de usuario), pensado para
 que tú edites el sitio sin tocar código:
 
-- **Productos** — el catálogo de `/productos/` (crear, editar, borrar, orden).
+- **Productos** — el catálogo de `/productos/` (crear, editar, borrar, orden,
+  y una foto de portada opcional — si no subes foto, se usa el emoji).
 - **Textos** — los textos sueltos del home (título, subtítulo, pasos de "Cómo
   funciona"), identificados por una llave tipo `home.hero.title`.
 - **Páginas** — páginas libres nuevas en `/paginas/<slug>/`, armadas con
@@ -134,6 +137,10 @@ con el contenido por defecto (WhatsApp/correo como alternativa).
      Build hooks (dale un nombre, ej. "dashboard"), pega la URL aquí. Es lo
      que usa el botón "Publicar" del dashboard para redesplegar el sitio.
 4. Conecta tu dominio real y actualiza `site` en `astro.config.mjs` + los datos en `src/lib/site.ts`.
+
+Las fotos de producto (Netlify Blobs) no necesitan ninguna variable de
+entorno extra: quedan ligadas automáticamente a tu sitio, tanto en
+producción como en local con `netlify dev`.
 
 **Importante:** como el build ahora lee Neon (`getProducts`/`getTexts`/
 `getPublishedPages`), `DATABASE_URL` tiene que estar configurada también para
