@@ -85,9 +85,22 @@ input:focus,select:focus{border-color:#1a94a3;box-shadow:0 0 0 3px rgba(11,110,1
 .qbtn:hover{background:#e7f3f4;color:#0b6e7a}
 .qnum{width:52px;height:34px;border:none;border-left:1px solid #e2e5e9;border-right:1px solid #e2e5e9;text-align:center;font-size:15px;font-weight:600;outline:none}
 .qnum::-webkit-inner-spin-button,.qnum::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* Barra superior del sitio (logo + volver) — mismos colores que el resto de Bajaforma */
+.site-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:#fbf6ee;border-bottom:1px solid #cfe6e8}
+.site-bar-logo{display:flex;align-items:center}
+.site-bar-logo img{height:34px;width:auto;display:block}
+.site-bar-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#073039;text-decoration:none;padding:7px 14px;border-radius:999px;transition:background .12s}
+.site-bar-back:hover{background:#e7f3f4;color:#0b6e7a}
 </style>
 </head>
 <body>
+<div class="site-bar">
+  <a href="/productos/llaveros-personalizados/" class="site-bar-logo" aria-label="Bajaforma — volver al sitio">
+    <img src="/logo.png" alt="Bajaforma">
+  </a>
+  <a href="/productos/llaveros-personalizados/" class="site-bar-back">&larr; Volver al sitio</a>
+</div>
 <div class="page">
   <div class="header">
     <div><h1>Configurador de Llaveros 3D</h1><p>Escribe un nombre, elige tu estilo y descarga el archivo listo para imprimir</p></div>

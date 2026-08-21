@@ -61,25 +61,27 @@ const faqSchema = {
   </section>
 
   <!-- App del configurador: vive como página estática independiente en /tools/
-       (su propio HTML/CSS/JS, con Three.js + opentype.js) e incrusta aquí.
-       Así el contenido de esta página (lo que Google/IA indexan) queda
-       separado de la herramienta interactiva en sí. -->
-  <section class="mx-auto max-w-6xl px-5 pb-6">
-    <div class="rounded-2xl border border-ocean-100 overflow-hidden bg-sand-100/40">
-      <iframe
-        src="/tools/llaveros-personalizados.html"
-        title="Configurador de llaveros 3D personalizados"
-        loading="lazy"
-        class="w-full block"
-        style="height: 900px; border: 0;"
-      ></iframe>
-    </div>
-    <p class="mt-2 text-sm text-ink-soft">
-      ¿Se ve muy chico en tu pantalla?
-      <a href="/tools/llaveros-personalizados.html" target="_blank" rel="noopener noreferrer" class="text-ocean-500 hover:text-ocean-600 font-medium">
-        Ábrelo en pantalla completa →
-      </a>
-    </p>
+       (su propio HTML/CSS/JS, con Three.js + opentype.js). Se abre a pantalla
+       completa (no en iframe) — ella misma trae la barra con el logo y el
+       botón de volver, para que se sienta parte del sitio y no una app aparte. -->
+  <section class="mx-auto max-w-6xl px-5 pb-16">
+    <a
+      href="/tools/llaveros-personalizados.html"
+      class="group flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-ocean-100 bg-white p-8 hover:border-ocean-400 hover:shadow-md transition-all"
+    >
+      <div class="w-20 h-20 shrink-0 rounded-2xl bg-ocean-50 flex items-center justify-center text-4xl">
+        🔑
+      </div>
+      <div class="flex-1 text-center sm:text-left">
+        <p class="font-semibold text-lg group-hover:text-ocean-600">Abrir el configurador</p>
+        <p class="mt-1 text-sm text-ink-soft">
+          Se abre a pantalla completa: escribe el nombre, ajusta el diseño y mira el modelo en 3D en vivo.
+        </p>
+      </div>
+      <span class="shrink-0 rounded-full bg-ocean-500 text-white font-semibold px-6 py-3 group-hover:bg-ocean-600 transition-colors whitespace-nowrap">
+        Personalizar →
+      </span>
+    </a>
   </section>
 
   <section class="mx-auto max-w-6xl px-5 py-10 border-t border-ocean-100">
