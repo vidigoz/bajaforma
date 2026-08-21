@@ -12,17 +12,23 @@ function sign(payload, secret) {
   return createHmac('sha256', secret).update(payload).digest('base64url');
 }
 
+// En "netlify dev" (CONTEXT=dev) el sitio corre en http://localhost — el
+// atributo Secure exige HTTPS, así que se omite solo ahí. En producción
+// (Netlify sirve todo por HTTPS) sí va con Secure.
+const isLocalDev = process.env.CONTEXT === 'dev' || process.env.NETLIFY_DEV === 'true';
+const secureAttr = isLocalDev ? '' : ' Secure;';
+
 export function createSessionCookie(secret) {
   const exp = Date.now() + SESSION_HOURS * 60 * 60 * 1000;
   const payload = String(exp);
   const sig = sign(payload, secret);
   const value = `${payload}.${sig}`;
   const maxAge = SESSION_HOURS * 60 * 60;
-  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly;${secureAttr} SameSite=Lax; Max-Age=${maxAge}`;
 }
 
 export function clearSessionCookie() {
-  return `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+  return `${COOKIE_NAME}=; Path=/; HttpOnly;${secureAttr} SameSite=Lax; Max-Age=0`;
 }
 
 function readCookie(req, name) {
